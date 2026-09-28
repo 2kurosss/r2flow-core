@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: r2flow
+      POSTGRES_PASSWORD: r2flow_dev_password
+      POSTGRES_DB: r2flow_core
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: ../..
+    command: uvicorn r2flow_core.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql+asyncpg://r2flow:r2flow_dev_password@postgres:5432/r2flow_core
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
